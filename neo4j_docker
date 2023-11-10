@@ -1,0 +1,1 @@
+docker run -d --name medicaldb -p 7474:7474 -p 7687:7687 -v D:\Pycharm\MedicalChatBot/neo4j/data:/data -v D:\Pycharm\MedicalChatBot/neo4j/logs:/logs -v D:\Pycharm\MedicalChatBot/neo4j/conf:/var/lib/neo4j/conf -v D:\Pycharm\MedicalChatBot/neo4j/import:/var/lib/neo4j/import --env NEO4J_AUTH=neo4j/12345678 neo4j
