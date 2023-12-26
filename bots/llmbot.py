@@ -11,13 +11,15 @@ class LLMBot:
         self.table = self.db.open_table("medical")
         self.model = SentenceTransformer('BAAI/bge-base-zh-v1.5')
 
-    ##RAG部分
+    # RAG部分
     def search(self, query):
+        # 将query 用向量模型编码
         embeddings_query = self.model.encode(query, normalize_embeddings=True)
+        # 向量数据库，进行QQ匹配，搜索QA库中最相似的Q，并返回其对应的A
         results = self.table.search(embeddings_query).limit(3).to_pandas()
         results["q_a"] = results["query"] + ":" + results["answer"]
         document = "\n".join(results["q_a"].to_list())
-        prompt ="""
+        prompt = """
         请根据参考资料回答问题
         要求：
         1.不要跳出参考资料的范围去回答问题。
@@ -35,7 +37,9 @@ class LLMBot:
         return prompt
 
     def run(self, query):
+        # 语义向量检索
         prompt = self.search(query)
+        # LLM生成
         result = self.llm(prompt)
         return result
 

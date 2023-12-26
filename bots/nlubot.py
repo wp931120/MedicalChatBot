@@ -4,20 +4,25 @@ from py2neo import Graph
 
 class NluBot:
     def __init__(self):
+        # 语义槽
         self.slot = {
             "intent": None,
             "intent_score": None,
             "entitys": {}
         }
+        # 图数据库
         self.graph = Graph("bolt://localhost:7687", auth=("neo4j", "12345678"))
         self.slotFiller = SlotFiller()
         self.sqlParser = SqlParser()
 
     def run(self, text):
         try:
+            # 获取语义槽
             self.slot = self.slotFiller.get_slot(text)
             print(self.slot)
+            # 将语义槽解析成SQL
             sql = self.sqlParser.parse(self.slot)
+            # 执行SQL并获取数据
             result = self.graph.run(sql)
             if self.slot["intent"] == "疾病的症状":
                 result = result.to_data_frame()["n.name"]
@@ -29,6 +34,7 @@ class NluBot:
                 result = result.to_data_frame()["n.name"]
             if self.slot["intent"] == "药物能治疗什么病":
                 result = result.to_data_frame()["n.name"]
+            # 将数据组装成答案并返回
             result = ",".join(result.to_list())
             return result
         except Exception as e:
@@ -49,9 +55,10 @@ class SlotFiller:
         self.intent_cls = Taskflow("zero_shot_text_classification", model="utc-base", schema=self.intent_schema)
 
     def get_slot(self, text):
-        entitys = self.entity_extract(text)
+        # 意图识别
         intent = self.intent_cls(text)
-
+        # 词槽抽取
+        entitys = self.entity_extract(text)
         if entitys is not None:
             for i in entitys[0].items():
                 self.slot["entitys"][i[0]] = {i[1][0]["text"]: {i[1][0]["probability"]}}
@@ -65,6 +72,7 @@ class SlotFiller:
 
 
 class SqlParser:
+    # SQL解析类
     def __init__(self):
         pass
 
