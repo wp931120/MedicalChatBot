@@ -46,7 +46,7 @@ class LLMBot:
     @staticmethod
     def llm(prompt):
         url = "https://api.baichuan-ai.com/v1/chat/completions"
-        api_key = "5659bafa6a3ec2ff4af0ab3ed0038c9e"
+        api_key = "*****"
 
         data = {
             "model": "Baichuan2",
